@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ff8bb8">
+  <title>わくわく！ぼく・わたしの とくい みつけ！</title>
+  <style>
+    :root { --pink:#ff78a8; --yellow:#ffd84d; --ink:#4a3b62; --cream:#fffaf2; --mint:#8edcc8; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100dvh; color:var(--ink); font-family:"Hiragino Maru Gothic ProN","Yu Gothic",Meiryo,sans-serif; background:linear-gradient(160deg,#fff0f7,#fffae3 47%,#e9fbf5); overflow-x:hidden; }
+    body::before,body::after { content:"";position:fixed;z-index:-1;border-radius:50%;filter:blur(2px);opacity:.5; }
+    body::before { width:42vw;height:42vw;background:#ffd85c;left:-14vw;top:28vh; } body::after { width:34vw;height:34vw;background:#b9f0dc;right:-10vw;top:5vh; }
+    .app { width:min(100%,720px); min-height:100dvh; margin:auto; padding:clamp(16px,4vw,30px) clamp(16px,5vw,38px) 28px; position:relative; display:flex; flex-direction:column; }
+    .screen { display:none; flex:1; animation:appear .45s ease both; } .screen.active { display:flex; flex-direction:column; }
+    .sparkles { position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:10; }
+    .spark { position:absolute; animation:float 3s ease-in-out infinite; font-size:clamp(15px,3vw,24px); } .s1{left:6%;top:17%}.s2{right:7%;top:24%;animation-delay:-1.4s}.s3{left:9%;bottom:20%;animation-delay:-.6s}.s4{right:10%;bottom:13%;animation-delay:-2.1s}
+    .hero { text-align:center; justify-content:center; gap:12px; }
+    .kicker { display:inline-block; margin:auto; background:#fff; padding:7px 15px; border-radius:99px; font-size:clamp(12px,2.8vw,15px); font-weight:900; box-shadow:0 5px 0 #f7c9dd; }
+    h1 { margin:6px 0 0; font-size:clamp(29px,7vw,49px); line-height:1.22; color:#ee5790; text-shadow:2px 3px 0 #fff, 4px 5px 0 #ffd4e5; letter-spacing:.04em; }
+    .rainbow { font-size:clamp(25px,7vw,43px); margin:0; letter-spacing:-.25em; }
+    .visual { height:min(56vh,510px); min-height:270px; margin:0 auto; display:grid; place-items:center; position:relative; width:min(100%,510px); }
+    .hero-img { position:relative; height:100%; max-width:100%; object-fit:contain; border-radius:24px; box-shadow:0 12px 24px rgba(87,117,168,.23); }
+    .start-note { text-align:center; font-weight:700; line-height:1.7; margin:4px 0 16px; }
+    .cta, .answer, .again { border:0; font-family:inherit; cursor:pointer; transition:transform .16s,filter .16s; font-weight:900; color:#fff; }
+    .cta:active,.answer:active,.again:active { transform:scale(.95); } .cta:hover,.answer:hover,.again:hover { filter:brightness(1.04); }
+    .cta { width:min(100%,480px); align-self:center; background:linear-gradient(135deg,#ff75a6,#ff9677); font-size:clamp(19px,4.8vw,25px); padding:18px 18px; border-radius:22px; box-shadow:0 7px 0 #d75487,0 12px 18px #e99baf77; }
+    .privacy { text-align:center; margin:19px 0 0; font-size:12px; opacity:.7; }
+    .progress { margin:3px 0 15px; } .progress-label { text-align:center;font-weight:900;font-size:17px; } .bar { height:12px;background:#fff;border-radius:20px;overflow:hidden;margin-top:9px;box-shadow:inset 0 1px 4px #c9b4c555; } .bar i { display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#ff82ad,#ffc94d,#80d9ca);transition:width .35s ease; }
+    .question-card,.result-card { background:rgba(255,255,255,.91); border:3px solid #fff; box-shadow:0 10px 30px #b1789450,0 4px 0 #f5ddea; border-radius:29px; padding:clamp(20px,5vw,32px); }
+    .quiz-friends { height:68px; position:relative; margin:-1px 10px 3px; pointer-events:none; overflow:visible; } .quiz-friend { position:absolute; bottom:-4px; width:78px; height:78px; border-radius:50%; background:url('result-types.png') 0% 0%/310% auto no-repeat,#fff; border:3px solid #fff; box-shadow:0 5px 8px #704e7350; animation:buddy 3.2s ease-in-out infinite; } .friend-a{left:4%;transform:rotate(-8deg)} .friend-b{right:4%;background-position:100% 0%;animation-delay:-1.5s;transform:rotate(8deg)}
+    .question-num { color:#e66194;font-size:14px;font-weight:900;margin:0 0 10px; } h2 { margin:0; font-size:clamp(23px,5.8vw,32px);line-height:1.45;text-align:center; }
+    .answers { display:grid; gap:11px; margin-top:22px; } .answer { text-align:left;background:#fff8fb;color:var(--ink);border:2px solid #ffd7e5;border-radius:18px;padding:14px 16px;font-size:clamp(15px,3.8vw,18px);box-shadow:0 4px 0 #f2cbd9; } .answer b { display:inline-grid;place-items:center;width:29px;height:29px;border-radius:50%;background:#ff8eb6;color:#fff;margin-right:9px;font-size:14px; }
+    .feedback { position:fixed;left:50%;top:48%;z-index:30;transform:translate(-50%,-50%) scale(.4);padding:15px 25px;border-radius:99px;background:#fff;color:#ee5790;font-weight:900;font-size:25px;box-shadow:0 8px 25px #8a466966;opacity:0;pointer-events:none; } .feedback.show { animation:pop .78s ease both; }
+    .result { justify-content:center; padding-top:5px; } .result-head { text-align:center;font-weight:900;color:#ee5790;font-size:22px;margin:0 0 12px; } .result-card { text-align:center; animation:result .65s cubic-bezier(.18,.92,.34,1.3) both; }
+    .type-image { margin:8px auto 10px;width:min(100%,430px);aspect-ratio:1;display:grid;place-items:center;overflow:hidden;position:relative;border-radius:22px;background:#fff;box-shadow:inset 0 0 0 2px #fff,0 5px 14px #975d7d2b; } .type-image img { width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 6px 5px #975d7d44); }
+    .type-icon { position:absolute;z-index:1;font-size:55px;text-shadow:0 2px #fff; }
+    .type-name { color:#e95189;font-size:clamp(25px,6.5vw,35px);margin:3px 0 8px; } .tagline { font-weight:900;background:#fff3a8;display:inline-block;padding:5px 13px;border-radius:99px;margin:0 0 15px;font-size:14px; } .lead { font-weight:900;font-size:17px;line-height:1.65;margin:0 0 13px; } .description { line-height:1.75;margin:0; }
+    .recommend { background:#effbf5;border-radius:16px;padding:12px 14px;margin:16px 0 10px;text-align:left;font-size:14px;line-height:1.65; } .challenge { background:#fff3f7;border-radius:16px;padding:12px 14px;font-weight:700;font-size:14px;line-height:1.6; }
+    .dual { color:#7b5ca3;font-weight:900;margin:0 0 9px;font-size:15px; }.future { text-align:center;font-weight:900;line-height:1.7;margin:17px 6px; } .again { background:linear-gradient(135deg,#7ecfbd,#62b9d9);border-radius:19px;font-size:19px;padding:16px;box-shadow:0 6px 0 #429bb2; } .home { margin-top:16px; border:0; background:transparent; color:#6e5c79; font:700 15px inherit; cursor:pointer; text-decoration:underline; }
+    .confetti { position:fixed;top:-30px;z-index:25;pointer-events:none;animation:fall 1.9s linear forwards; } .hidden { display:none!important; }
+    @keyframes appear{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}} @keyframes float{50%{transform:translateY(-13px) rotate(20deg)}} @keyframes buddy{50%{margin-bottom:13px;transform:rotate(7deg) scale(1.06)}} @keyframes pop{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}30%,75%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}100%{opacity:0;transform:translate(-50%,-65%) scale(.9)}} @keyframes result{from{opacity:0;transform:scale(.65) rotate(-3deg)}to{opacity:1;transform:none}} @keyframes fall{to{transform:translate(var(--x),110vh) rotate(620deg);opacity:0}}
+    @media (max-height:680px){.visual{height:38vh;min-height:200px}.hero{gap:5px}.privacy{display:none}.question-card{padding:18px}.answers{gap:8px;margin-top:14px}.answer{padding:10px 13px}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="sparkles"><span class="spark s1">✨</span><span class="spark s2">⭐</span><span class="spark s3">🌸</span><span class="spark s4">✨</span></div>
+    <section id="start" class="screen hero active">
+      <p class="kicker">きみの「すき！」を みつけよう</p>
+      <div class="visual"><img class="hero-img" src="start-visual.png" alt="わくわく！ぼく・わたしの とくい みつけ！" onerror="this.classList.add('hidden')"></div>
+      <button class="cta" id="startBtn">🌈 しんだんをはじめる！</button><p class="start-note">せいかいはないよ！<br>すきなほうをえらんでね♪</p><p class="privacy">なまえも じゅうしょも きかないよ。あんしんして あそべるよ</p>
+    </section>
+    <section id="quiz" class="screen"><div class="progress"><div id="progressLabel" class="progress-label"></div><div class="bar"><i id="progressBar"></i></div></div><div class="quiz-friends" aria-hidden="true"><span class="quiz-friend friend-a"></span><span class="quiz-friend friend-b"></span></div><div class="question-card"><p id="questionNum" class="question-num"></p><h2 id="question"></h2><div id="answers" class="answers"></div></div></section>
+    <section id="result" class="screen result"><p class="result-head">🎉 けっかがでたよ！</p><div class="result-card"><p id="dual" class="dual hidden"></p><div class="type-image"><span id="typeIcon" class="type-icon"></span><img id="typeImage" src="" alt="" class="hidden" onload="document.getElementById('typeIcon').style.display='none'" onerror="this.classList.add('hidden');document.getElementById('typeIcon').style.display='block'"></div><h2 id="typeName" class="type-name"></h2><p id="tagline" class="tagline"></p><p id="lead" class="lead"></p><p id="description" class="description"></p><div class="recommend"><b>💡 おすすめ：</b><span id="recommend"></span></div><div class="challenge">🌟 <b>とくいを のばす チャレンジ</b><br><span id="challenge"></span></div></div><p class="future">🌱 きみの とくいは、まだまだ これから！<br>きょう みつけた「すき！」を たいせつにしてね。<br>✨ きみの みらいは、きみの「すき！」から はじまる ✨</p><button class="again" id="againBtn">🔄 もう一回あそぶ！</button><button class="home" id="homeBtn">🏠 はじめの がめんに もどる</button></section>
+  </main><div id="feedback" class="feedback"></div>
+  <script>
+  const types=[
+    {name:'ひらめきクリエイター',icon:'🎨',key:'つくる・ひらめく・そうぞうする',lead:'きみには、「つくる・ひらめく・そうぞうする」とくいが あるかも！',desc:'あたまの なかに「こんなの あったら いいな！」を うかべるのが とくいかも。えを かいたり、ものを つくったり、あたらしい アイデアを かんがえたり するのが たのしそう！',rec:'おえかき、こうさく、しゃしん、どうが、ゲームづくり、おはなしづくり、デザイン',challenge:'せかいに ない あたらしい どうぐを えに かいてみよう！',img:'result-creator.png'},
+    {name:'やさしいせんせい',icon:'💕',key:'おしえる・たすける・おうえんする',lead:'きみには、「おしえる・たすける・おうえんする」とくいが あるかも！',desc:'だれかの きもちに きづいて、そっと ちからに なれる すてきな ひとかも。きみの やさしい こえかけが、だれかの えがおに つながりそう！',rec:'よみきかせ、おしえること、そうだんに のる、おうえんする、おてつだい',challenge:'きょう、だれかに「ありがとう」を つたえてみよう！',img:'result-teacher.png'},
+    {name:'ふしぎはっけんたんてい',icon:'🔍',key:'しらべる・かんがえる・はっけんする',lead:'きみには、「しらべる・かんがえる・はっけんする」とくいが あるかも！',desc:'「どうして？」「なぜ？」を たいせつに できる、わくわく たんけんかかも。よく みると、まいにちの なかにも あたらしい はっけんが いっぱい あるよ！',rec:'じっけん、かんさつ、ずかん、クイズ、しらべること、なぞとき',challenge:'おうちの なかで「なんで？」を 3つ さがしてみよう！',img:'result-detective.png'},
+    {name:'わくわくチャレンジャー',icon:'🚀',key:'ちょうせん・うごく・やってみる',lead:'きみには、「ちょうせん・うごく・やってみる」とくいが あるかも！',desc:'「まず やってみよう！」と いっぽを ふみだせる パワーが あるかも。からだを うごかしたり、あたらしいことに であったり すると、わくわくが おおきく なりそう！',rec:'スポーツ、ダンス、そとあそび、あたらしい あそび、たいけん',challenge:'やったことの ないことを 1つ やってみよう！',img:'result-challenger.png'},
+    {name:'なかよしプロデューサー',icon:'🤝',key:'つなぐ・まとめる・たのしませる',lead:'きみには、「つなぐ・まとめる・たのしませる」とくいが あるかも！',desc:'みんなが たのしく なることを かんがえられる、すてきな もりあげ めいじんかも。きみが いると、ともだちの わが もっと にこにこ ひろがりそう！',rec:'イベント、ゲーム、チームあそび、はっぴょう、ともだちとの きかく',challenge:'ともだちと あたらしい あそびを かんがえてみよう！',img:'result-producer.png'}];
+  const questions=[
+    ['すきなじかんは どれ？',['えを かいたり、ものを つくる','ともだちに なにかを おしえる','むしや しょくぶつを じっくり みる','そとで はしったり スポーツを する','みんなで あそぶ']],
+    ['きょうの やすみじかん、なにする？',['おえかき・こうさく','ともだちと おしゃべり','なにかを かんさつしてみる','おにごっこ・ドッジボール','みんなで あたらしい あそびを かんがえる']],
+    ['もし まほうが 1つ つかえたら？',['なんでも つくれる まほう','みんなを げんきに する まほう','なんでも しることが できる まほう','そらを とべる まほう','みんなを なかよしに する まほう']],
+    ['こうさくの じかん。じゆうに つくって いいよ！',['じぶんだけの ロボットを つくる','だれかが よろこぶ プレゼントを つくる','うごく しくみを しらべて つくる','あそべる ひみつきちを つくる','みんなで あそべる ゲームを つくる']],
+    ['ともだちが こまっていたら？',['なにか つくって たすける','「だいじょうぶ？」と こえを かける','どうして こまっているのか かんがえる','「いっしょに やろう！」と いう','みんなに こえを かけて たすけてもらう']],
+    ['「なんでだろう？」と おもったら？',['えにして かんがえてみる','だれかに きいてみる','じぶんで しらべてみる','じっさいに やってみる','ともだちと いっしょに かんがえる']],
+    ['がっこうで あたらしい かかりを つくれるなら？',['おえかきがかり','おたすけがかり','ふしぎはっけんがかり','スポーツがかり','みんなを たのしませるがかり']],
+    ['なつやすみに やってみたい！',['じぶんだけの さくひんを つくる','だれかを よろこばせることを する','しらないことを しらべる','あたらしいことに チャレンジする','ともだちと イベントを する']],
+    ['もし がっこうの せんせいに なったら？',['おもしろい じゅぎょうを つくる','みんなの そうだんに のる','じっけんや しらべる じゅぎょうを する','そとで からだを うごかす じゅぎょうを する','みんなで たのしく できる じゅぎょうを する']],
+    ['おおきく なったら、どんなことを してみたい？',['じぶんの アイデアを かたちに する','ひとを えがおに する','しらないことを はっけんする','いろんなことに ちょうせんする','たくさんの ひとと いっしょに なにかを する']]
+  ];
+  let current=0,scores=[]; const $=id=>document.getElementById(id); const screens=['start','quiz','result'];
+  function show(id){screens.forEach(x=>$(x).classList.toggle('active',x===id));window.scrollTo({top:0,behavior:'smooth'});}
+  function begin(){current=0;scores=[0,0,0,0,0];show('quiz');renderQuestion();}
+  function renderQuestion(){let q=questions[current];$('progressLabel').textContent=`⭐ ${current+1}もんめ / 10もん`;$('progressBar').style.width=`${current/10*100}%`;$('questionNum').textContent=`QUESTION ${String(current+1).padStart(2,'0')}`;$('question').textContent=q[0];$('answers').innerHTML=q[1].map((x,i)=>`<button class="answer" data-choice="${i}"><b>${'ABCDE'[i]}</b>${x}</button>`).join('');document.querySelectorAll('.answer').forEach(b=>b.addEventListener('click',()=>answer(+b.dataset.choice)));}
+  function answer(choice){document.querySelectorAll('.answer').forEach(b=>b.disabled=true);scores[choice]+=2; const related=[[2,4],[4,0],[0,3],[0,2],[1,4],[2,4],[4,1],[3,0],[2,4],[0,4]]; let other=related[current][0]; if(choice===0) scores[other]++; else if(choice===4) scores[related[current][1]]++; else if(current%3===choice%3) scores[(choice+1)%5]++; celebrate(['✨ いいね！','🌟 ひらめいたね！','🎉 ナイス！'][current%3]);setTimeout(()=>{current++;if(current===10)showResult();else renderQuestion()},650);}
+  function celebrate(text){$('feedback').textContent=text;$('feedback').classList.remove('show');void $('feedback').offsetWidth;$('feedback').classList.add('show');for(let i=0;i<10;i++){let e=document.createElement('span');e.className='confetti';e.textContent=['⭐','✨','🌸','💛'][i%4];e.style.left=(12+Math.random()*76)+'vw';e.style.setProperty('--x',(Math.random()*180-90)+'px');e.style.animationDelay=(Math.random()*.2)+'s';document.body.append(e);setTimeout(()=>e.remove(),2100)}}
+  function showResult(){let max=Math.max(...scores), winners=scores.map((n,i)=>n===max?i:null).filter(x=>x!==null),winner=winners[0],t=types[winner];$('progressBar').style.width='100%';$('dual').classList.toggle('hidden',winners.length<2);$('dual').textContent=winners.length>1?'🌈 きみは 2つの とくいを もっているかも！':'';$('typeIcon').textContent=t.icon;$('typeIcon').style.display='block';$('typeName').textContent=t.icon+' '+t.name;$('tagline').textContent=t.key;$('lead').textContent=t.lead;$('description').textContent=t.desc;$('recommend').textContent=t.rec;$('challenge').textContent=t.challenge;let im=$('typeImage'),box=im.parentElement;box.className='type-image';im.src=t.img;im.alt=t.name+'の けっか イラスト';im.classList.remove('hidden');celebrate('🎊 ジャジャーン！');show('result');}
+  $('startBtn').addEventListener('click',begin);$('againBtn').addEventListener('click',begin);$('homeBtn').addEventListener('click',()=>show('start'));
+  </script>
+</body></html>
